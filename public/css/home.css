@@ -1,0 +1,129 @@
+html,body{
+ padding: 0;
+ margin: 0;
+ height: 100%;
+ width: 100%;
+
+}
+
+.Welcome_Index{
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  background-image: url('../images/home.jpeg');
+  background-repeat: no-repeat;
+  top: 0;
+
+  display: table;
+  background-size: cover;
+}
+
+.Welcome_Index .in1{
+  display: table-cell;
+  vertical-align: middle;
+  width: 100%;
+  max-width: none;
+
+}
+
+.content_Index{
+  max-width: 700px;
+  margin: auto;
+  text-align: center;
+
+}
+
+.content_Index h1{
+  font-family: 'vivaldi', sans-serif;
+  color: white;
+  font-size: 80px;
+}
+
+.content_Index h3{
+  font-family: 'vivaldi', sans-serif;
+  color: white;
+  font-size: 50px;
+  width: 100%;
+  margin-top: -15px;
+  padding-bottom: 30px;
+}
+
+.content_Index .btn_Index{
+  border-radius: 9px;
+  color: white;
+  text-decoration: none;
+  font-family: 'quicksand', sans-serif;
+  border: 3px solid;
+  padding: 7px 13px;
+  font-weight: bold;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.content_Index .btn_Index:hover{
+  color: #1f6fef;
+}
+
+.Welcometext{
+
+  padding-left: 50%;
+}
+
+.startbilder img{
+width: auto;
+height: 286px;
+border-top:4px solid #000000;
+border-right:4px solid #000000;
+border-bottom:4px; solid #000000;
+border-left:4px solid #000000;
+border-color: white;
+
+  }
+
+.startbilder img:hover {
+  -webkit-transform: rotate(0deg) scale(1.1);  /* Saf3.1+, Chrome */
+  -moz-transform: rotate(0deg) scale(1.1);  /* FF3.5+ */
+  -o-transform: rotate(0deg) scale(1.1);  /* Opera */
+  transform: rotate(0deg) scale(1.1);
+  }
+
+  #myInput {
+    background-repeat: no-repeat;
+    background-image: url('../bilder/searchicon.png');
+    background-position: 10px 10px;
+    width: 50%;
+    font-size: 16px;
+    padding: 16px 20px 16px 20px;
+    border: 1px solid #ddd;
+    margin-top: 0.1%;
+
+
+  }
+
+  .search{
+    background-image: url('../images/search.jpeg');
+    width: 100%;
+    height: 40%;
+    text-align: center;
+  }
+
+  .search h1{
+    font-size: 80px;
+    color: white;
+      font-family: 'vivaldi', sans-serif;
+      text-align: center;
+      padding-top: 3%;
+  }
+
+  .search h3{
+    font-size: 35px;
+    margin-top: 12px;
+    color: white;
+      font-family: 'vivaldi', sans-serif;
+      text-align: center;
+  }
+
+  ul{
+    list-style-type: none;
+    float: left;
+  }
