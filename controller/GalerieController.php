@@ -36,7 +36,7 @@ class GalerieController
         $view->galerien = $galerieRepository->readGlobals($global);
         $galerien =  $galerieRepository->readGlobals($global);
         foreach ($galerien as $galerie){
-            $view->userinfos =$this->noXSS($userRepository->readById($galerie->u_id));
+            $view->userinfos =$userRepository->readById($galerie->u_id);
         }
 
         $view->display();
@@ -117,7 +117,7 @@ class GalerieController
                 // Falls alles okay, Bild hochladen
             } else {
                 if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                    echo "The file ". $this->noXSS(basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
+                    echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
                 } else {
                     echo "Sorry, there was an error uploading your file.";
                 }
