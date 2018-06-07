@@ -19,7 +19,7 @@ class GalerieController
         $view->heading = 'Meine Galerien';
         $view->heading2 ="Galerien";
         if(isset($_SESSION['user_id'])) {
-            $sid = $_SESSION['user_id'];
+            $sid = $this->noXSS($_SESSION['user_id']);
             $view->user = $userRepository->readById($sid);
             $view->galerien = $galerieRepository->readAllm($sid);
         }
@@ -36,7 +36,7 @@ class GalerieController
         $view->galerien = $galerieRepository->readGlobals($global);
         $galerien =  $galerieRepository->readGlobals($global);
         foreach ($galerien as $galerie){
-            $view->userinfos = $userRepository->readById($galerie->u_id);
+            $view->userinfos =$this->noXSS($userRepository->readById($galerie->u_id));
         }
 
         $view->display();
@@ -44,7 +44,7 @@ class GalerieController
     public function globalGalerieUser(){
         $galerieRepository = new GalerieRepository();
         $userRepository = new UserRepository();
-        $email = $_GET['email'];
+        $email = $this->noXSS($_GET['email']);
         $global = 1;
         $view = new View('globaleGalerienUser_anzeigen');
         $view->heading = 'Öffentliche Galerien';
@@ -68,9 +68,9 @@ class GalerieController
     public function doCreate(){
 
         if ($_POST['send']) {
-            $uid = $_SESSION['user_id'];
-            $galeriename = htmlspecialchars($_POST['galeriename']);
-            $beschreibung = htmlspecialchars($_POST['beschreibung']);
+            $uid = $this->noXSS($_SESSION['user_id']);
+            $galeriename = $this->noXSS($_POST['galeriename']);
+            $beschreibung = $this->noXSS($_POST['beschreibung']);
 
             if(isset($_POST['global'])){
                 $global = 1;
@@ -117,14 +117,14 @@ class GalerieController
                 // Falls alles okay, Bild hochladen
             } else {
                 if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                    echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+                    echo "The file ". $this->noXSS(basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
                 } else {
                     echo "Sorry, there was an error uploading your file.";
                 }
             }
 
             $galerieRepository = new GalerieRepository();
-            $galerieRepository->create($galeriename, $beschreibung,$target_file,$global,$uid);
+            $galerieRepository->create($this->noXSS($galeriename), $this->noXSS($beschreibung),$this->noXSS($target_file),$this->noXSS($global),$this->noXSS($uid));
             header('Location: /galerie');
         }
     }
@@ -134,7 +134,7 @@ class GalerieController
         $view->title = 'Galerie bearbeiten';
         $view->heading = 'Galerie bearbeiten';
         if(isset($_GET['id'])) {
-            $g_id = $_GET['id'];
+            $g_id = $this->noXSS($_GET['id']);
             $view->g_id = $g_id;
             $view->galerie = $galerieRepository->readById($g_id);
         }
@@ -142,9 +142,9 @@ class GalerieController
     }
     public function doUpdate(){
         if ($_POST['send']) {
-            $g_id = $_GET['id'];
-            $galeriename = htmlspecialchars($_POST['galeriename']);
-            $beschreibung = htmlspecialchars($_POST['beschreibung']);
+            $g_id = $this->noXSS($_GET['id']);
+            $galeriename = $this->noXSS($_POST['galeriename']);
+            $beschreibung = $this->noXSS($_POST['beschreibung']);
             $galerieRepository = new GalerieRepository();
             $galerieRepository->update($g_id, $galeriename, $beschreibung);
         }
@@ -153,9 +153,13 @@ class GalerieController
     {
 
         $galerieRepository = new GalerieRepository();
-        $galerieRepository->deleteById($_GET['id']);
+        $galerieRepository->deleteById($this->noXSS($_GET['id']));
 
         // Anfrage an die URI /user weiterleiten (HTTP 302)
         header('Location: /galerie');
+    }
+
+    private function noXSS($string) {
+      return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }
 }

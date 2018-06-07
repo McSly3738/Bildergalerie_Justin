@@ -1,4 +1,4 @@
-<?php
+$this->$this->noXSS<?php
 
 require_once '../repository/UserRepository.php';
 require_once '../repository/GalerieRepository.php';
@@ -28,13 +28,13 @@ class UserController
         $userRepository = new UserRepository();
         $view = new View('user_update');
         if(isset($_GET['message'])) {
-            $fehlermeldung = $_GET["message"];
-            $view->fehlermeldung = $fehlermeldung;
+            $fehlermeldung = $this->noXSS($_GET["message"]);
+            $view->fehlermeldung = $this->noXSS($fehlermeldung);
         }
         $view->title = 'Passwort bearbeiten';
         $view->heading = 'Passwort bearbeiten';
         if(isset($_SESSION['user_id'])) {
-            $uid = $_SESSION['user_id'];
+            $uid = $this->noXSS($_SESSION['user_id']);
             $view->user = $userRepository->readById($uid);
         }
         $view->display();
@@ -43,10 +43,10 @@ class UserController
     // User updaten
     public function doUpdate(){
         if ($_POST['send']) {
-            $uid = $_SESSION['user_id'];
-            $password = htmlspecialchars($_POST['password']);
-            $mompassword = htmlspecialchars($_POST['mompassword']);
-            $passwordcheck = htmlspecialchars($_POST['passwordcheck']);
+            $uid = $this->noXSS($_SESSION['user_id']);
+            $password = $this->noXSS($_POST['password']);
+            $mompassword = $this->noXSS($_POST['mompassword']);
+            $passwordcheck = $this->noXSS($_POST['passwordcheck']);
             $userRepository = new UserRepository();
             if($password == $passwordcheck){
                 if($userRepository->update($uid,$password,$mompassword) < 0){
@@ -67,8 +67,8 @@ class UserController
     {
         $view = new View('user_login');
         if(isset($_GET['message'])) {
-            $fehlermeldung = $_GET["message"];
-            $view->fehlermeldung = $fehlermeldung;
+            $fehlermeldung = $this->noXSS($_GET["message"]);
+            $view->fehlermeldung = $this->noXSS($fehlermeldung);
         }
         $view->title = 'Login';
         $view->heading = 'Einloggen';
@@ -93,8 +93,8 @@ class UserController
     {
         $view = new View('user_create');
         if(isset($_GET['message'])) {
-            $fehlermeldung = $_GET["message"];
-            $view->fehlermeldung = $fehlermeldung;
+            $fehlermeldung = $this->noXSS($_GET["message"]);
+            $view->fehlermeldung = $this->noXSS($fehlermeldung);
         }
         $view->title = 'Registration';
         $view->heading = 'Registrieren';
@@ -105,10 +105,10 @@ class UserController
     public function doCreate()
     {
         if ($_POST['send']) {
-            $username = htmlspecialchars($_POST['username']);
-            $email = htmlspecialchars($_POST['email']);
-            $password = htmlspecialchars($_POST['password']);
-            $passwordcheck = htmlspecialchars($_POST['passwordcheck']);
+            $username = $this->noXSS($_POST['username']);
+            $email = $this->noXSS($_POST['email']);
+            $password = $this->noXSS($_POST['password']);
+            $passwordcheck = $this->noXSS($_POST['passwordcheck']);
             $userRepository = new UserRepository();
             $user = $userRepository->checkEmail($email);
             if($password != $passwordcheck){
@@ -131,8 +131,8 @@ class UserController
     {
         if ($_POST['send']) {
             if(isset($_POST['email'])&&isset($_POST['password'])){
-            $email = htmlspecialchars($_POST['email']);
-            $password = htmlspecialchars($_POST['password']);
+            $email = $this->noXSS($_POST['email']);
+            $password = $this->noXSS($_POST['password']);
 
             $userRepository = new UserRepository();
             $userRepository->login($email, $password);
@@ -154,9 +154,13 @@ class UserController
     public function delete()
     {
         $userRepository = new UserRepository();
-        $userRepository->deleteById($_GET['id']);
+        $userRepository->deleteById($this->noXSS($_GET['id']));
 
         // Anfrage an die URI /user weiterleiten (HTTP 302)
         header('Location: /user');
     }
+    private function noXSS($string) {
+      return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    }
+
 }

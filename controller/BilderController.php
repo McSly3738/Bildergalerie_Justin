@@ -57,21 +57,21 @@ class BilderController
     // Spieler in DB erstellen + Bild hochladen
     public function doAdd(){
 
-        $g_id = htmlspecialchars($_POST['g_id']);
-        $beschreibung = htmlspecialchars($_POST['beschreibung']);
+        $g_id = $this->noXSS($_POST['g_id']);
+        $beschreibung = $this->noXSS($_POST['beschreibung']);
 
 
         // Spielerbild in Ordner /public/images/ hochladen
         $target_dir = "images/";
         $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
         $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        $imageFileType = $this->noXSS(strtolower(pathinfo($target_file,PATHINFO_EXTENSION)));
 
         // Schauen ob Datei auch ein BIld ist
         if(isset($_POST["submit"])) {
             $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
             if($check !== false) {
-                echo "File is an image - " . $check["mime"] . ".";
+                echo "File is an image - " . $this->noXSS($check["mime"]) . ".";
                 $uploadOk = 1;
             } else {
                 echo "File is not an image.";
@@ -100,27 +100,27 @@ class BilderController
         // Falls alles okay, Bild hochladen
         } else {
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+                echo "The file ". $this->noXSS(basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
             } else {
                 echo "Sorry, there was an error uploading your file.";
             }
         }
 
         $bilderRepository = new BilderRepository();
-        $bilderRepository->create($beschreibung,$target_file,$g_id);
+        $bilderRepository->create($this->noXSS($beschreibung),$this->noXSS($target_file),$this->noXSS($g_id));
 
         // Anfrage an die URI /user weiterleiten (HTTP 302)
 
-        header('Location: /bilder/anzeigen?id='.$g_id);
+        header('Location: /bilder/anzeigen?id='.$this->noXSS($g_id));
 
     }
 
     // Spieler löschen in DB
     public function delete(){
-        $g_id = $_GET['id'];
+        $g_id = $this->noXSS($_GET['id']);
         $bilderRepository = new BilderRepository();
-        $bilderRepository->deleteById($_GET['bid']);
-        header('Location: /bilder/anzeigen?id='.$g_id);
+        $bilderRepository->deleteById($this->noXSS($_GET['bid']));
+        header('Location: /bilder/anzeigen?id='.$this->noXSS($g_id));
 
     }
 
@@ -131,11 +131,11 @@ class BilderController
         $view->title = 'Bild bearbeiten';
         $view->heading = 'Bild bearbeiten';
         if(isset($_GET['bid']) && isset($_GET['id'])) {
-            $bid = $_GET['bid'];
-            $g_id = $_GET['id'];
-            $view->bid = $bid;
-            $view->g_id = $g_id;
-            $view->bilder = $bilderRepository->readById($bid);
+            $bid = $this->noXSS($_GET['bid']);
+            $g_id = $this->noXSS($_GET['id']);
+            $view->bid = $this->noXSS($bid);
+            $view->g_id = $this->noXSS($g_id);
+            $view->bilder = $bilderRepository->readById($this->noXSS($bid));
         }
         $view->display();
     }
@@ -144,12 +144,12 @@ class BilderController
     public function doUpdate(){
         if ($_POST['send']) {
 
-            $g_id = $_GET['id'];
-            $bid = $_GET['bid'];
-            $beschreibung = htmlspecialchars($_POST['beschreibung']);
+            $g_id = $this->noXSS($_GET['id']);
+            $bid = $this->noXSS($_GET['bid']);
+            $beschreibung = $this->noXSS($_POST['beschreibung']);
 
             $bilderRepository = new BilderRepository();
-            $bildinfo = $bilderRepository->readById($bid);
+            $bildinfo = $bilderRepository->readById($this->noXSS($bid));
             if(isset($_FILES["fileToUpload"])){
                 $target_dir = "images/";
                 $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
@@ -159,7 +159,7 @@ class BilderController
                 if(isset($_POST["submit"])) {
                     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
                     if($check !== false) {
-                        echo "File is an image - " . $check["mime"] . ".";
+                        echo "File is an image - " . $this->noXSS($check["mime"]) . ".";
                         $uploadOk = 1;
                     } else {
                         echo "File is not an image.";
@@ -202,9 +202,12 @@ class BilderController
 
 
 
-            $bilderRepository->update($bid,$beschreibung,$target_file);
-            header('Location: /bilder/anzeigen?id='.$g_id);
+            $bilderRepository->update($this->noXSS($bid),$this->noXSS($beschreibung),$this->noXSS($target_file));
+            header('Location: /bilder/anzeigen?id='.$this->noXSS($g_id));
         }
+    }
+    private function noXSS($string) {
+      return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }
 
     public function index() {
