@@ -5,6 +5,15 @@
 # Für das MVC wird mit Hilfe der RewriteEnging die URI des jeweiligen Requests
 # angeschaut und allenfalls auf eine andere Datei umgeleitet.
 
+<Files ./images>
+    Order Allow,Deny
+    Deny from all
+</Files>
+<Files /index.php>
+    Order Allow,Deny
+    Allow from all
+</Files>
+
 # Schalte die RewriteEngine ein
 RewriteEngine On
 

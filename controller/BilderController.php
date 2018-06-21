@@ -17,9 +17,19 @@ class BilderController
         if(isset($_SESSION['user_id'])) {
             if(isset($_GET['id'])) {
                 $g_id = $_GET['id'];
+                $u_id = $_SESSION['user_id'];
                 $view->galerie = $galerieRepository->readById($g_id);
-                $view->g_id = $g_id;
-                $view->bilder = $bilderRepository->readAllb($g_id);
+                if($view->galerie->u_id == $u_id){
+                  $view->g_id = $g_id;
+                  $view->bilder = $bilderRepository->readAllb($g_id);
+                }
+                else{
+                  $view = new View('error_view');
+                  $view->heading = 'Bilder';
+                  $view->title = 'Bilder';
+                  $view->message = "Du hast keine Berechtigung auf diese Bilder";
+                }
+
             }
         }
         $view->display();
@@ -66,7 +76,7 @@ class BilderController
         $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
         $uploadOk = 1;
         $imageFileType = $this->noXSS(strtolower(pathinfo($target_file,PATHINFO_EXTENSION)));
-
+        $view = new View("error_view");
         // Schauen ob Datei auch ein BIld ist
         if(isset($_POST["submit"])) {
             $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
@@ -74,44 +84,68 @@ class BilderController
                 echo "File is an image - " . $this->noXSS($check["mime"]) . ".";
                 $uploadOk = 1;
             } else {
-                echo "File is not an image.";
+
+                $view->title = 'Error';
+                $view->heading = 'Error';
+                $view->message = "file is not an image!";
+
                 $uploadOk = 0;
             }
         }
         // Schauen ob Bild schon existiert
         if (file_exists($target_file)) {
-            echo "Bild existiert bereits.";
+
+          $view->title = 'Error';
+          $view->heading = 'Error';
+          $view->message = "Das Bild gibt es bereits!";
+
             $uploadOk = 0;
         }
         // Bildgrösse überprüfen (500KB)
         if ($_FILES["fileToUpload"]["size"] > 1000000) {
-            echo "Sorry, your file is too large.";
+
+
+          $view->title = 'Error';
+          $view->heading = 'Error';
+          $view->message = "Das File ist zu gross!";
+
+
             $uploadOk = 0;
         }
         // JPG, PNG, JPEG und GIF erlauben
         if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
             && $imageFileType != "gif" ) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+              $view->title = 'Error';
+              $view->heading = 'Error';
+              $view->message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+
+
+
             $uploadOk = 0;
         }
         // Falls error -> $uploadOk = 0
         if ($uploadOk == 0) {
-            echo "Datei wurde nicht hochgeladen.";
+            $view->display();
         // Falls alles okay, Bild hochladen
         } else {
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
                 echo "The file ". $this->noXSS(basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
+                $bilderRepository = new BilderRepository();
+                $bilderRepository->create($this->noXSS($beschreibung),$this->noXSS($target_file),$this->noXSS($g_id));
+
+                // Anfrage an die URI /user weiterleiten (HTTP 302)
+
+                header('Location: /bilder/anzeigen?id='.$this->noXSS($g_id));
             } else {
-                echo "Sorry, there was an error uploading your file.";
+                $view = new View("error_view");
+                $view->title = 'Error';
+                $view->heading = 'Error';
+                $view->message = "File konnte nicht hochgeladen werden.";
+                $view->display();
             }
         }
 
-        $bilderRepository = new BilderRepository();
-        $bilderRepository->create($this->noXSS($beschreibung),$this->noXSS($target_file),$this->noXSS($g_id));
 
-        // Anfrage an die URI /user weiterleiten (HTTP 302)
-
-        header('Location: /bilder/anzeigen?id='.$this->noXSS($g_id));
 
     }
 
